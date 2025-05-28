@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administration - Université</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .admin-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+      }
+
+      .admin-nav {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #eee;
+        background: white;
+        border-radius: 10px 10px 0 0;
+        padding: 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .admin-tab {
+        padding: 1.5rem 2rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 10px 10px 0 0;
+      }
+
+      .admin-tab:hover {
+        background: #f8f9fa;
+        color: #333;
+      }
+
+      .admin-tab.active {
+        color: #007bff;
+        border-bottom-color: #007bff;
+        background: #f8f9fa;
+      }
+
+      .admin-section {
+        background: white;
+        border-radius: 0 0 15px 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        min-height: 600px;
+      }
+
+      .admin-section h2 {
+        margin-bottom: 2rem;
+        color: #333;
+        font-size: 1.8rem;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .data-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .data-table tr:hover {
+        background: #f8f9fa;
+      }
+
+      .data-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .badge.en-attente {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .badge.valide {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .badge.en_attente {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .stat-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 1.1rem;
+      }
+
+      .loading-message {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+      }
+
+      .error-message {
+        text-align: center;
+        padding: 2rem;
+        color: #dc3545;
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        margin: 1rem 0;
+      }
+
+      .success-message {
+        text-align: center;
+        padding: 2rem;
+        color: #155724;
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 8px;
+        margin: 1rem 0;
+      }
+
+      .refresh-button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s;
+        margin-bottom: 1rem;
+      }
+
+      .refresh-button:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+      }
+
+      .table-container {
+        overflow-x: auto;
+        margin-top: 1rem;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #ddd;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .nav {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: background 0.3s;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <i class="fas fa-graduation-cap"></i>
+          <h1>Administration</h1>
+        </div>
+        <nav class="nav">
+          <a href="index.html" class="nav-link">
+            <i class="fas fa-arrow-left"></i> Retour inscription
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="admin-container">
+      <div class="admin-nav">
+        <button
+          class="admin-tab active"
+          onclick="showAdminSection('dashboard')"
+        >
+          <i class="fas fa-chart-bar"></i> Dashboard
+        </button>
+        <button class="admin-tab" onclick="showAdminSection('students')">
+          <i class="fas fa-users"></i> Étudiants
+        </button>
+        <button class="admin-tab" onclick="showAdminSection('filieres')">
+          <i class="fas fa-book"></i> Filières
+        </button>
+      </div>
+
+      <!-- Dashboard -->
+      <div id="dashboard" class="admin-section">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0;
+          "
+        >
+          <h2>Dashboard Administrateur</h2>
+          <button class="refresh-button" onclick="loadAdminData()">
+            <i class="fas fa-sync-alt"></i> Actualiser
+          </button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-number" id="admin-total-students">0</div>
+            <div class="stat-label">Étudiants inscrits</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-book"></i></div>
+            <div class="stat-number" id="admin-total-filieres">0</div>
+            <div class="stat-label">Filières disponibles</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-number" id="admin-en-attente">0</div>
+            <div class="stat-label">En attente</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+            <div class="stat-number" id="admin-today">0</div>
+            <div class="stat-label">Inscriptions aujourd'hui</div>
+          </div>
+        </div>
+
+        <!-- Dernières inscriptions sur le dashboard -->
+        <h3>📋 Dernières inscriptions</h3>
+        <div class="table-container">
+          <table class="data-table" id="dashboard-recent-table">
+            <thead>
+              <tr>
+                <th>Numéro</th>
+                <th>Nom complet</th>
+                <th>Email</th>
+                <th>Filière</th>
+                <th>Date inscription</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="6" class="loading-message">
+                  <i class="fas fa-spinner fa-spin"></i> Chargement...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Étudiants -->
+      <div id="students" class="admin-section" style="display: none">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+          "
+        >
+          <h2>👥 Liste Complète des Étudiants</h2>
+          <button class="refresh-button" onclick="loadStudentsData()">
+            <i class="fas fa-sync-alt"></i> Actualiser
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table" id="admin-students-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Numéro Étudiant</th>
+                <th>Nom</th>
+                <th>Prénoms</th>
+                <th>Email</th>
+                <th>Date Naissance</th>
+                <th>Filière</th>
+                <th>Date Inscription</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="9" class="loading-message">
+                  <i class="fas fa-spinner fa-spin"></i> Chargement des
+                  étudiants...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Filières -->
+      <div id="filieres" class="admin-section" style="display: none">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+          "
+        >
+          <h2>📚 Filières Disponibles</h2>
+          <button class="refresh-button" onclick="loadFilieresData()">
+            <i class="fas fa-sync-alt"></i> Actualiser
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table" id="admin-filieres-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Code</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Nb Étudiants</th>
+                <th>Dernière Inscription</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="6" class="loading-message">
+                  <i class="fas fa-spinner fa-spin"></i> Chargement des
+                  filières...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+      let adminData = {
+        students: [],
+        filieres: [],
+      };
+
+      // Chargement initial des données
+      async function loadAdminData() {
+        console.log("🔄 Chargement des données administrateur...");
+
+        try {
+          // Afficher l'état de chargement
+          showLoadingStates();
+
+          const stats = await api.getStats();
+          console.log("📊 Données reçues:", stats);
+
+          // Stocker les données
+          adminData.students = stats.students || [];
+          adminData.filieres = stats.filieres || [];
+
+          // Mettre à jour les statistiques
+          updateAdminStats(stats);
+
+          // Charger les tables selon la section active
+          const activeSection = document.querySelector(
+            '.admin-section:not([style*="display: none"])'
+          );
+          if (activeSection) {
+            const sectionId = activeSection.id;
+            switch (sectionId) {
+              case "dashboard":
+                loadDashboardData();
+                break;
+              case "students":
+                loadStudentsData();
+                break;
+              case "filieres":
+                loadFilieresData();
+                break;
+            }
+          }
+
+          console.log("✅ Données administrateur chargées");
+        } catch (error) {
+          console.error("❌ Erreur chargement données admin:", error);
+          showErrorStates(error.message);
+        }
+      }
+
+      // Mettre à jour les statistiques
+      function updateAdminStats(stats) {
+        const today = new Date().toDateString();
+        const todayInscriptions = stats.students.filter(
+          (s) => new Date(s.date_inscription).toDateString() === today
+        ).length;
+
+        animateNumber("admin-total-students", stats.totalStudents);
+        animateNumber("admin-total-filieres", stats.totalFilieres);
+        animateNumber("admin-en-attente", stats.enAttente);
+        animateNumber("admin-today", todayInscriptions);
+      }
+
+      // Animation des nombres
+      function animateNumber(elementId, targetNumber) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        const startNumber = parseInt(element.textContent) || 0;
+        const duration = 1000;
+        const startTime = Date.now();
+
+        function updateNumber() {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+
+          const currentNumber = Math.floor(
+            startNumber + (targetNumber - startNumber) * progress
+          );
+          element.textContent = currentNumber;
+
+          if (progress < 1) {
+            requestAnimationFrame(updateNumber);
+          }
+        }
+
+        updateNumber();
+      }
+
+      // Charger les données du dashboard
+      function loadDashboardData() {
+        const recentStudents = adminData.students.slice(0, 5);
+        const tbody = document.querySelector("#dashboard-recent-table tbody");
+
+        if (recentStudents.length === 0) {
+          tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <p>Aucune inscription pour le moment</p>
+                        </td>
+                    </tr>
+                `;
+        } else {
+          tbody.innerHTML = recentStudents
+            .map(
+              (student) => `
+                    <tr>
+                        <td><strong>${student.numero_etudiant}</strong></td>
+                        <td>${student.nom} ${student.prenoms}</td>
+                        <td>${student.email}</td>
+                        <td>${student.filiere_nom || "Non définie"}</td>
+                        <td>${new Date(
+                          student.date_inscription
+                        ).toLocaleDateString("fr-FR")}</td>
+                        <td><span class="badge ${student.statut
+                          .toLowerCase()
+                          .replace("_", "-")}">${student.statut}</span></td>
+                    </tr>
+                `
+            )
+            .join("");
+        }
+      }
+
+      // Charger les données des étudiants
+      function loadStudentsData() {
+        const tbody = document.querySelector("#admin-students-table tbody");
+
+        if (adminData.students.length === 0) {
+          tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <i class="fas fa-user-graduate"></i>
+                            <p>Aucun étudiant inscrit</p>
+                        </td>
+                    </tr>
+                `;
+        } else {
+          tbody.innerHTML = adminData.students
+            .map(
+              (student) => `
+                    <tr>
+                        <td>${student.id}</td>
+                        <td><strong>${student.numero_etudiant}</strong></td>
+                        <td>${student.nom}</td>
+                        <td>${student.prenoms}</td>
+                        <td>${student.email}</td>
+                        <td>${
+                          student.date_naissance
+                            ? new Date(
+                                student.date_naissance
+                              ).toLocaleDateString("fr-FR")
+                            : "-"
+                        }</td>
+                        <td>${student.filiere_nom || "Non définie"}</td>
+                        <td>${new Date(
+                          student.date_inscription
+                        ).toLocaleDateString("fr-FR")}</td>
+                        <td><span class="badge ${student.statut
+                          .toLowerCase()
+                          .replace("_", "-")}">${student.statut}</span></td>
+                    </tr>
+                `
+            )
+            .join("");
+        }
+      }
+
+      // Charger les données des filières
+      function loadFilieresData() {
+        const tbody = document.querySelector("#admin-filieres-table tbody");
+
+        if (adminData.filieres.length === 0) {
+          tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <i class="fas fa-book"></i>
+                            <p>Aucune filière disponible</p>
+                        </td>
+                    </tr>
+                `;
+        } else {
+          tbody.innerHTML = adminData.filieres
+            .map((filiere) => {
+              const nbEtudiants = adminData.students.filter(
+                (s) => s.filiere_id === filiere.id
+              ).length;
+              const lastInscription = adminData.students
+                .filter((s) => s.filiere_id === filiere.id)
+                .sort(
+                  (a, b) =>
+                    new Date(b.date_inscription) - new Date(a.date_inscription)
+                )[0];
+
+              return `
+                        <tr>
+                            <td>${filiere.id}</td>
+                            <td><strong>${filiere.code}</strong></td>
+                            <td>${filiere.nom}</td>
+                            <td>${filiere.description || "-"}</td>
+                            <td><span class="badge" style="background: #007bff; color: white;">${nbEtudiants}</span></td>
+                            <td>${
+                              lastInscription
+                                ? new Date(
+                                    lastInscription.date_inscription
+                                  ).toLocaleDateString("fr-FR")
+                                : "-"
+                            }</td>
+                        </tr>
+                    `;
+            })
+            .join("");
+        }
+      }
+
+      // Changer de section
+      function showAdminSection(sectionName) {
+        console.log(`🔄 Changement vers section: ${sectionName}`);
+
+        // Masquer toutes les sections
+        document.querySelectorAll(".admin-section").forEach((s) => {
+          s.style.display = "none";
+        });
+
+        // Désactiver tous les onglets
+        document.querySelectorAll(".admin-tab").forEach((t) => {
+          t.classList.remove("active");
+        });
+
+        // Afficher la section demandée
+        const targetSection = document.getElementById(sectionName);
+        if (targetSection) {
+          targetSection.style.display = "block";
+        }
+
+        // Activer l'onglet
+        event.target.classList.add("active");
+
+        // Charger les données spécifiques
+        switch (sectionName) {
+          case "dashboard":
+            loadDashboardData();
+            break;
+          case "students":
+            loadStudentsData();
+            break;
+          case "filieres":
+            loadFilieresData();
+            break;
+        }
+      }
+
+      // États de chargement
+      function showLoadingStates() {
+        const tables = [
+          "#dashboard-recent-table tbody",
+          "#admin-students-table tbody",
+          "#admin-filieres-table tbody",
+        ];
+
+        tables.forEach((selector) => {
+          const tbody = document.querySelector(selector);
+          if (tbody) {
+            const colCount = tbody
+              .closest("table")
+              .querySelectorAll("th").length;
+            tbody.innerHTML = `
+                        <tr>
+                            <td colspan="${colCount}" class="loading-message">
+                                <i class="fas fa-spinner fa-spin"></i> Chargement...
+                            </td>
+                        </tr>
+                    `;
+          }
+        });
+      }
+
+      // États d'erreur
+      function showErrorStates(errorMessage) {
+        const tables = [
+          "#dashboard-recent-table tbody",
+          "#admin-students-table tbody",
+          "#admin-filieres-table tbody",
+        ];
+
+        tables.forEach((selector) => {
+          const tbody = document.querySelector(selector);
+          if (tbody) {
+            const colCount = tbody
+              .closest("table")
+              .querySelectorAll("th").length;
+            tbody.innerHTML = `
+                        <tr>
+                            <td colspan="${colCount}" class="error-message">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                Erreur: ${errorMessage}
+                            </td>
+                        </tr>
+                    `;
+          }
+        });
+      }
+
+      // Initialisation
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("🚀 Page administration initialisée");
+        loadAdminData();
+
+        // Actualisation automatique toutes les 30 secondes
+        setInterval(() => {
+          loadAdminData();
+        }, 30000);
+      });
+
+      console.log("✅ Script administration chargé");
+    </script>
+  </body>
+</html>

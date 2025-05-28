@@ -1,0 +1,41 @@
+<!-- test.html -->
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Frontend</title>
+  </head>
+  <body>
+    <h1>Test de connexion Backend</h1>
+    <button onclick="testAPI()">Tester l'API</button>
+    <div id="results"></div>
+
+    <script>
+      async function testAPI() {
+        const results = document.getElementById("results");
+        results.innerHTML = "Test en cours...";
+
+        try {
+          // Test health check
+          const health = await fetch("http://localhost:3001/api/health");
+          const healthData = await health.json();
+          console.log("Health check:", healthData);
+
+          // Test filières
+          const filieres = await fetch("http://localhost:3001/api/filieres");
+          const filieresData = await filieres.json();
+          console.log("Filières:", filieresData);
+
+          results.innerHTML = `
+                    <h3>✅ Tests réussis !</h3>
+                    <p>Serveur: ${healthData.status}</p>
+                    <p>Filières: ${filieresData.count} trouvées</p>
+                `;
+        } catch (error) {
+          results.innerHTML = `<p style="color: red">❌ Erreur: ${error.message}</p>`;
+        }
+      }
+    </script>
+  </body>
+</html>
