@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture ESTIAM - Comparaison Moderne</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="20" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            padding: 3rem;
+        }
+
+        .architecture-column {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .architecture-column::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .architecture-column:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .column-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .column-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .column-icon {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .component-block {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .component-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .component-block:hover {
+            transform: translateX(8px);
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .component-block:hover::before {
+            transform: scaleY(1);
+        }
+
+        .component-icon {
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .component-text {
+            flex: 1;
+        }
+
+        .component-name {
+            font-weight: 600;
+            color: #1a202c;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .component-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* Colors for different component types */
+        .ui-component .component-icon { background: linear-gradient(135deg, #4299e1, #3182ce); }
+        .logic-component .component-icon { background: linear-gradient(135deg, #48bb78, #38a169); }
+        .data-component .component-icon { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+        .database-component .component-icon { background: linear-gradient(135deg, #9f7aea, #805ad5); }
+        .microservice-component .component-icon { background: linear-gradient(135deg, #f56565, #e53e3e); }
+        .auth-component .component-icon { background: linear-gradient(135deg, #38b2ac, #319795); }
+        .email-component .component-icon { background: linear-gradient(135deg, #ec4899, #d53f8c); }
+        .upload-component .component-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+        .database-block {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            margin: 1.5rem 0;
+            font-weight: 600;
+        }
+
+        .database-block::before {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .database-block:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        }
+
+        .database-block .component-icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .tech-stack {
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .tech-stack h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .tech-icons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tech-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .tech-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .nodejs { background: linear-gradient(135deg, #68a063, #3c873a); }
+        .mysql { background: linear-gradient(135deg, #00758f, #005a6d); }
+        .docker { background: linear-gradient(135deg, #2496ed, #0974d1); }
+        .jwt { background: linear-gradient(135deg, #000000, #333333); }
+        .github { background: linear-gradient(135deg, #333, #24292e); }
+        .express { background: linear-gradient(135deg, #259dff, #1976d2); }
+
+        .tech-label {
+            font-size: 0.8rem;
+            color: #a0aec0;
+            font-weight: 500;
+        }
+
+        .vs-separator {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .advantages {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .advantages h4 {
+            color: #1a202c;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .advantage-list {
+            list-style: none;
+        }
+
+        .advantage-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .advantage-list .fa-check {
+            color: #48bb78;
+        }
+
+        .advantage-list .fa-times {
+            color: #f56565;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 2rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tech-icons {
+                gap: 1rem;
+            }
+            
+            .vs-separator {
+                display: none;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+
+        .fadeInUp {
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-graduation-cap"></i> Architecture ESTIAM</h1>
+                <p class="subtitle">Comparaison Moderne : Monolithique vs Microservices</p>
+            </div>
+        </header>
+
+        <div class="comparison-container">
+            <div class="vs-separator pulse">VS</div>
+            
+            <!-- Architecture Monolithique -->
+            <div class="architecture-column fadeInUp">
+                <div class="column-header">
+                    <h2 class="column-title">
+                        <i class="fas fa-layer-group column-icon"></i>
+                        Architecture Monolithique
+                    </h2>
+                </div>
+
+                <div class="component-block ui-component">
+                    <div class="component-icon">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <div class="component-text">
+                        <div class="component-name">Interface Utilisateur</div>
+                        <div class="component-desc">Frontend intégré avec logique métier</div>
+                    </div>
+                </div>
+
+                <div class="component-block logic-component">
+                    <div class="component-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="component-text">
+                        <div class="component-name">Logique Métier</div>
+                        <div class="component-desc">Traitement centralisé des règles</div>
+                    </div>
+                </div>
+
+                <div class="component-block data-component">
+                    <div class="component-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="component-text">
+                        <div class="component-name">Interface de Données</div>
+                        <div class="component-desc">Couche d'accès unique aux données</div>
+                    </div>
+                </div>
+
+                <div class="component-block database-block">
+                    <div class="component-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="component-text">
+                        <div class="component-name">Base MySQL Unique</div>
+                        <div class="component-desc">Stockage centralisé de toutes les données</div>
+                    </div>
+                </div>
+
+                <div class="advantages">
+                    <h4><i class="fas fa-plus-circle" style="color: #48bb78;"></i> Avantages</h4>
+                    <ul class="advantage-list">
+                        <li><i class="fas fa-check"></i> Développement simple et rapide</li>
+                        <li><i class="fas fa-check"></i> Déploiement unifié</li>
+                        <li><i class="fas fa-check"></i> Tests plus faciles</li>
+                        <li><i class="fas fa-times"></i> Scalabilité limitée</li>
+                        <li><i class="fas fa-times"></i> Point de défaillance unique</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Architecture Microservices -->
+            <div class="architecture-column fadeInUp" style="animation-delay: 0.2s;">
+                <div class="column-header">
+                    <h2 class="column-title">
+                        <i class="fas fa-cubes column-icon"></i>
+                        Architecture Microservices
+                    </h2>
+                </div>
+
+                <div class="component-block ui-component">
+                    <div class="component-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <div class="component-text">
+                        <div class="component-name">Frontend Découplé</div>
+                        <div class="component-desc">Interface utilisateur séparée</div>
+                    </div>
+                </div>
+
+                <div class="component-block microservice-component">
+                    <div class="component-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="component-text">
+                        <div class="component-name">Service Étudiants</div>
+                        <div class="component-desc">Gestion des inscriptions</div>
+                    </div>
+                </div>
+                <div class="component-block database-block">
+                    <div class="component-icon"><i class="fas fa-database"></i></div>
+                    <div class="component-text">
+                        <div class="component-name">DB Étudiants</div>
+                    </div>
+                </div>
+
+                <div class="component-block microservice-component">
+                    <div class="component-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="component-text">
+                        <div class="component-name">Service Filières</div>
+                        <div class="component-desc">Gestion des programmes</div>
+                    </div>
+                </div>
+                <div class="component-block database-block">
+                    <div class="component-icon"><i class="fas fa-database"></i></div>
+                    <div class="component-text">
+                        <div class="component-name">DB Filières</div>
+                    </div>
+                </div>
+
+                <div class="component-block auth-component">
+                    <div class="component-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="component-text">
+                        <div class="component-name">Service Auth</div>
+                        <div class="component-desc">Authentification sécurisée</div>
+                    </div>
+                </div>
+                <div class="component-block database-block">
+                    <div class="component-icon"><i class="fas fa-database"></i></div>
+                    <div class="component-text">
+                        <div class="component-name">DB Utilisateurs</div>
+                    </div>
+                </div>
+
+                <div class="component-block email-component">
+                    <div class="component-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="component-text">
+                        <div class="component-name">Service Emails</div>
+                        <div class="component-desc">Notifications automatisées</div>
+                    </div>
+                </div>
+
+                <div class="component-block upload-component">
+                    <div class="component-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="component-text">
+                        <div class="component-name">Service Upload</div>
+                        <div class="component-desc">Gestion des fichiers</div>
+                    </div>
+                </div>
+
+                <div class="advantages">
+                    <h4><i class="fas fa-plus-circle" style="color: #48bb78;"></i> Avantages</h4>
+                    <ul class="advantage-list">
+                        <li><i class="fas fa-check"></i> Scalabilité indépendante</li>
+                        <li><i class="fas fa-check"></i> Technologies variées</li>
+                        <li><i class="fas fa-check"></i> Résilience améliorée</li>
+                        <li><i class="fas fa-times"></i> Complexité de déploiement</li>
+                        <li><i class="fas fa-times"></i> Communication inter-services</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer class="tech-stack">
+            <h3><i class="fas fa-tools"></i> Stack Technologique Moderne</h3>
+            <div class="tech-icons">
+                <div class="tech-item">
+                    <div class="tech-logo nodejs">
+                        <i class="fab fa-node-js"></i>
+                    </div>
+                    <span class="tech-label">Node.js</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-logo express">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <span class="tech-label">Express</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-logo mysql">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <span class="tech-label">MySQL</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-logo jwt">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <span class="tech-label">JWT</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-logo docker">
+                        <i class="fab fa-docker"></i>
+                    </div>
+                    <span class="tech-label">Docker</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-logo github">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <span class="tech-label">GitHub</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Animation sur scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = '0s';
+                    entry.target.classList.add('fadeInUp');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.component-block').forEach((el, index) => {
+            el.style.animationDelay = `${index * 0.1}s`;
+            observer.observe(el);
+        });
+
+        // Effet de hover sur les composants
+        document.querySelectorAll('.component-block').forEach(block => {
+            block.addEventListener('mouseenter', () => {
+                block.style.transform = 'translateX(8px) scale(1.02)';
+            });
+            
+            block.addEventListener('mouseleave', () => {
+                block.style.transform = 'translateX(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
